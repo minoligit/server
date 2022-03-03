@@ -6,17 +6,25 @@
   "scripts": {
     "server": "nodemon index.js",
     "client": "npm run start --prefix ../my-app",
-    "dev": "concurrently --kill-others-on-fail \"npm run server\" \" npm run my-app\""
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \" npm run my-app\"",
+    "start": "node ./bin/www",
+    "watch": "nodemon --ext *"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "connect-livereload": "^0.6.1",
+    "livereload": "^0.9.3",
     "nodemon": "^2.0.15"
   },
   "dependencies": {
     "body-parser": "^1.19.2",
     "concurrently": "^7.0.0",
-    "express": "^4.17.3"
+    "cors": "^2.8.5",
+    "csvtojson": "^2.0.10",
+    "express": "^4.17.3",
+    "fs": "^0.0.1-security",
+    "mysql": "^2.18.1"
   }
 }
