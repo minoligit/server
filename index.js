@@ -20,13 +20,13 @@ const db = mysql.createPool({
     database: "my_app"
 });
 
+//User operations
 app.get('/selectAll',(req,res) => {
     const sqlSelectAll = "SELECT * FROM users";
     db.query(sqlSelectAll, (error, result) => {
         res.send(result);
     });
 });
-
 app.post('/insertUser',(req,res) => {
 
     const user_name = req.body.user_name;
@@ -41,72 +41,84 @@ app.post('/insertUser',(req,res) => {
         console.log(error);
     });
 });
+app.post('/searchUser',(req,res) => {
 
-app.get('/searchUser',(req,res) => {
-    const sqlSearchUser = "SELECT * FROM users WHERE user_id='1' ";
+    const user_name = req.body.userName;
+    const sqlSearchUser = "CALL searchUser('"+user_name+"');";
     db.query(sqlSearchUser, (error, result) => {
         res.send(result);
     });
 });
-
-app.get('/deleteUser/$user_id',(req,res) => {
-    const user_id = req.params.user_id;
-
+app.delete('/deleteUser',(req,res) => {
+    
+    const user_id = req.body.userId;
     const sqlDeleteUser = "DELETE FROM users WHERE user_id=? ";
     db.query(sqlDeleteUser, user_id,(error, result) => {
         console.log(error);
     });
 });
 
+//Music data operations
 app.get('/selectAllMusic',(req,res) => {
-    const sqlSelectAllMusic1 = "SELECT * FROM musicdata";
+    const sqlSelectAllMusic1 = "SELECT * FROM musicdata limit 100";
     db.query(sqlSelectAllMusic1, (error, result) => {
         res.send(result);
     });
 });
+app.post('/viewMusic',(req,res) => {
+    const songId = req.body.songid;
+    const sqlViewMusic = "SELECT * FROM musicdata WHERE songId=? ";
+    db.query(sqlViewMusic, songId, (error, result) => {
+        res.send(result);
+    });
+});
+app.get('/popularSongs',(req,res) => {
 
-app.get('/popularSongs1',(req,res) => {
-
-    const sqlPopularSongs1 = "SELECT COUNT(songId) AS Count1 FROM musicdata WHERE popularity=1 ";
-    db.query(sqlPopularSongs1, (error, result) => {
+    const sqlPopularSongs = "SELECT COUNT(SongId) as count FROM musicdata GROUP BY popularity ORDER BY popularity";
+    db.query(sqlPopularSongs, (error, result) => {
         res.send(result);  
     });   
 });
-app.get('/popularSongs2',(req,res) => {
-    const sqlPopularSongs2 = "SELECT COUNT(songId) AS Count2 FROM musicdata WHERE popularity=2 ";
-    db.query(sqlPopularSongs2, (error, result) => {
-        res.send(result);
-    });
-});
-app.get('/popularSongs3',(req,res) => {
-    const sqlPopularSongs3 = "SELECT COUNT(songId) AS Count3 FROM musicdata WHERE popularity=3 ";
-    db.query(sqlPopularSongs3, (error, result) => {
-        res.send(result);
-    });
-});
-app.get('/mode0',(req,res) => {
-    const sqlMode0 = "SELECT COUNT(songId) AS Mode0 FROM musicdata WHERE mode=0 ";
-    db.query(sqlMode0, (error, result) => {
-        res.send(result);
-    });
-});
-app.get('/mode1',(req,res) => {
-    const sqlMode1 = "SELECT COUNT(songId) AS Mode1 FROM musicdata WHERE mode=1 ";
-    db.query(sqlMode1, (error, result) => {
-        res.send(result);
-    });
+app.get('/mode',(req,res) => {
+
+    const sqlMode = "SELECT COUNT(SongId) as count FROM musicdata GROUP BY mode ORDER BY mode";
+    db.query(sqlMode, (error, result) => {
+        res.send(result);  
+    });   
 });
 
+//People data operations
 app.get('/richPeople',(req,res) => {
-
-    const sqlRichPeople = "SELECT * FROM peopledata ORDER BY Worth_USD DESC LIMIT 3";
+    const sqlRichPeople = "CALL richPeople();";
     db.query(sqlRichPeople, (error, result) => {
         res.send(result); 
     });   
 });
+app.get('/selectAllPeople',(req,res) => {
+    const sqlSelectAllMusic1 = "SELECT * FROM peopledata";
+    db.query(sqlSelectAllMusic1, (error, result) => {
+        res.send(result);
+    });
+});
+app.post('/searchCategory',(req,res) => {
+
+    const category = req.body.ctg;
+    const sqlPeopleCategory = "CALL peopleCategory('"+category+"');";
+    db.query(sqlPeopleCategory, (error, result) => {
+        res.send(result);
+    });
+});
+app.post('/searchName',(req,res) => {
+
+    const name = req.body.name;
+    const sqlPeopleName = "CALL peopleName('"+name+"');";
+    db.query(sqlPeopleName, (error, result) => {
+        res.send(result);
+    });
+});
 
 
-// app.get('/popularSongs1',(req,res) => {
+// app.get('/popularSongs',(req,res) => {
     
 //     const sqlPopularSongs = "SELECT * from musicdata limit "+req.query.limit+";";
 //     console.log(sqlPopularSongs);
@@ -120,6 +132,7 @@ app.get('/richPeople',(req,res) => {
 //     //             dd:"sahan"
 //     //             };
 //     // const y = JSON.stringify(x);
+//     // res.send(y);
 //     // console.log(x.dd);
 //     // res.send(JSON.parse(y));
 // });

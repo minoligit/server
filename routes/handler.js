@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
-
 const placesdata = require('../data/placesdata.json');
 
-router.get('/selectAllPlaces',(req,res) =>{
-    res.end(JSON.stringify(placesdata));
-});
-
+//Sort json dataset
 function sortByProperty(prop){  
     return function(a,b){  
        if(a[prop] > b[prop])  
@@ -17,7 +13,11 @@ function sortByProperty(prop){
        return 0;  
     }  
  }
-
+ 
+//Places data operations
+router.get('/selectAllPlaces',(req,res) =>{
+    res.end(JSON.stringify(placesdata));
+});
 const lessViewed = placesdata.sort(sortByProperty("views"));
 const mostViewed = lessViewed.reverse()
 router.get('/mostViewed',(req,res) =>{
