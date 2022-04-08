@@ -1,16 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const routesHandler = require('./routes/handler.js');
+const emailHandler = require('./routes/email.js');
+// const eventsHandler = require('./routes/events.js');
 const mysql = require('mysql');
 const cors = require('cors');
-const req = require('express/lib/request');
-// const { json } = require('body-parser');
-
+const fileupload = require("express-fileupload");
 const app = express();
+
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use('/',routesHandler);
+app.use('/',emailHandler);
+// app.use('/',eventsHandler);
+app.use(fileupload());
+app.use(express.static("files"));
 app.use(cors());
 
 const db = mysql.createPool({
@@ -18,6 +23,100 @@ const db = mysql.createPool({
     user: "root",
     password: "",
     database: "my_app"
+});
+
+function isNumeric(num){
+    return !isNaN(num)
+}
+function setValue(qry){
+    db.query(qry, (error, result) => {
+        // console.log(result[0].Count);
+        return (result);
+    }); 
+}
+
+//Employee Operations
+app.post('/selectAllEmployees',(req,res) => {
+    const sqlSelectAll = "SELECT * FROM employees";
+    db.query(sqlSelectAll, (error, result) => {
+        res.send(result);
+    }); 
+});
+app.post('/searchEmployees',(req,res) => {
+    
+    var headers = [];
+    var operations = [];
+    var inputs = [];
+    var selectors = [];
+    for(var i=0;i<req.body.header.length;i++){
+        headers.push(req.body.header[i]);
+        operations.push(req.body.operator[i]);
+        inputs.push(req.body.value[i]);
+        selectors.push(req.body.selector[i]);
+    };
+    
+    var qryStr = "1";
+    for (let i=0; i<headers.length; i++){
+        if( headers[i]!='undefined'&&headers[i]!= null&&
+            operations[i]!='undefined'&&operations[i]!= null&&
+            inputs[i]!='undefined'&&inputs[i]!= null){
+                if(isNumeric(inputs[i])){
+                    qryStr += (" "+selectors[i]+" "+headers[i]+operations[i]+inputs[i]);
+                }
+                else{
+                    if(operations[i]=="Start with"){
+                        qryStr += (" "+selectors[i]+" "+headers[i]+" LIKE '"+inputs[i]+"%'");
+                    }
+                    else if(operations[i]=="End with"){
+                        qryStr += (" "+selectors[i]+" "+headers[i]+" LIKE '%"+inputs[i]+"'");
+                    }
+                    else{
+                        qryStr += (" "+selectors[i]+" "+headers[i]+" LIKE '%"+inputs[i]+"%'");
+                    }
+                }
+        }
+    };     
+    const sqlSearchEmployees =  "CALL searchEmployee(\""+qryStr+"\");";
+    db.query(sqlSearchEmployees, (error, result) => {
+        res.send(result);
+        console.log(sqlSearchEmployees);
+    });
+})
+app.get('/sendEmpDescription',(req,res) => {
+
+    const sqlSendEmpDescription = "CALL sendEmpDescription();";
+    db.query(sqlSendEmpDescription, (error, result) => {
+        res.send(result);
+    });
+});
+
+
+//Event operations
+app.post('/addEvent',(req,res) => {
+
+    const title = req.body.title;
+    const content = req.body.content;
+    const eventOn = req.body.eventOn;
+    const published = req.body.published;
+
+    const sqlInsertUser = "INSERT INTO eventdata (title,content,eventOn,published) VALUES (?,?,?,?)";
+    db.query(sqlInsertUser, [title,content,eventOn,published], (error, result) => {
+        console.log(error);
+    });
+});
+app.post('/selectAllEvents',(req,res) => {
+    const sqlSelectAll = "SELECT * FROM eventdata ORDER BY eventOn DESC";
+    db.query(sqlSelectAll, (error, result) => {
+        res.send(result);
+    });
+});
+app.post('/searchEvent',(req,res) => {
+    const title = req.body.title;
+    const eventOn = req.body.eventOn;
+    const sqlSearchEvent = "SELECT * FROM eventdata WHERE title LIKE '%"+title+"%' OR eventOn ='"+eventOn+"'";
+    db.query(sqlSearchEvent,(error, result) => {
+        res.send(result);
+    });
 });
 
 //User operations
@@ -35,12 +134,27 @@ app.post('/insertUser',(req,res) => {
     const school = req.body.school;
     const higherEdu = req.body.higherEdu;
     const workPlace = req.body.workPlace;
+    const image = (__dirname+'\\images\\users\\'+user_name+'.jpg');
 
-    const sqlInsertUser = "INSERT INTO users (user_name,address,occupation,school,higherEdu,workPlace) VALUES (?,?,?,?,?,?)";
-    db.query(sqlInsertUser, [user_name,address,occupation,school,higherEdu,workPlace], (error, result) => {
+    const sqlInsertUser = "INSERT INTO users (user_name,address,occupation,school,higherEdu,workPlace,image) VALUES (?,?,?,?,?,?,?)";
+    db.query(sqlInsertUser, [user_name,address,occupation,school,higherEdu,workPlace,image], (error, result) => {
         console.log(error);
     });
 });
+app.post('/addPhoto',(req,res) => {
+    const file = req.files.image;
+    const filename = req.body.imageName;
+    const newpath = ('images\\users\\'+filename+'.jpg');
+
+    file.mv(newpath, (err) => {
+        if (err) {
+            console.log(err);
+        }
+        else{ 
+            console.log("Successfully uploaded");
+        }
+    });
+})
 app.post('/searchUser',(req,res) => {
 
     const user_name = req.body.userName;
@@ -59,11 +173,25 @@ app.delete('/deleteUser',(req,res) => {
 });
 
 //Music data operations
-app.get('/selectAllMusic',(req,res) => {
-    const sqlSelectAllMusic1 = "SELECT * FROM musicdata limit 100";
+app.post('/selectAllMusic',(req,res) => {
+    const sqlSelectAllMusic1 = "SELECT * FROM musicdata LIMIT 50";
     db.query(sqlSelectAllMusic1, (error, result) => {
         res.send(result);
     });
+});
+app.post('/selectedMusic',(req,res) => {
+    const year = req.body.year;
+    const sqlSelectedMusic = "SELECT * FROM musicdata WHERE year=? ";
+    db.query(sqlSelectedMusic, year, (error, result) => {
+        res.send(result);
+    });
+});
+app.post('/recordsCount',(req,res) => {
+
+    const sqlRecordsCount = "CALL recordsCount";
+    db.query(sqlRecordsCount, (error, result) => {
+        res.send(result);  
+    });   
 });
 app.post('/viewMusic',(req,res) => {
     const songId = req.body.songid;
@@ -72,9 +200,9 @@ app.post('/viewMusic',(req,res) => {
         res.send(result);
     });
 });
-app.get('/popularSongs',(req,res) => {
+app.post('/popularSongs',(req,res) => {
 
-    const sqlPopularSongs = "SELECT COUNT(SongId) as count FROM musicdata GROUP BY popularity ORDER BY popularity";
+    const sqlPopularSongs = "SELECT COUNT(SongId) as count,popularity FROM musicdata GROUP BY popularity ORDER BY popularity";
     db.query(sqlPopularSongs, (error, result) => {
         res.send(result);  
     });   
@@ -116,6 +244,17 @@ app.post('/searchName',(req,res) => {
         res.send(result);
     });
 });
+app.post('/addPeople',(req,res) => {
+    const name = req.body.name;
+    const worth = req.body.worth;
+    const bYear = req.body.bYear;
+    const category = req.body.category;
+
+    const sqlInsertUser = "INSERT INTO peopledata (Name,BYear,Worth_USD,Category) VALUES (?,?,?,?)";
+    db.query(sqlInsertUser, [name,bYear,worth,category], (error, result) => {
+        console.log(error);
+    });
+})
 
 
 // app.get('/popularSongs',(req,res) => {

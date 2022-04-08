@@ -1,6 +1,13 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const fs = require('fs');
 const router = express.Router();
-const placesdata = require('../data/placesdata.json');
+const placesdata = require(__dirname+'/../data/placesdata.json');
+
+app.use(express.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 //Sort json dataset
 function sortByProperty(prop){  
@@ -27,6 +34,29 @@ const lessReacted = placesdata.sort(sortByProperty("reactions"));
 const mostReacted = lessReacted.reverse()
 router.get('/mostReacted',(req,res) =>{
     res.end(JSON.stringify(mostReacted));
+});
+
+
+const lastId = placesdata.length;
+const nextId = lastId+1;
+
+router.post('/addPlace',(req,res) =>{
+   const id = nextId;
+   const place = req.body.place;
+   const address = req.body.address;
+
+   let placeData = {"id":id,"place":place,"address":address,"views":0,"reactions":0,"comments":0};
+   placesdata.push(placeData);
+   const sortedPlaces = placesdata.sort(sortByProperty("id"));
+
+   fs.writeFileSync(__dirname+'/../data/placesdata.json',JSON.stringify(sortedPlaces,null,4),function(err){
+      if(err){
+         console.log(err);
+      }
+      else{
+         console.log("successfully added");
+      }
+   })
 });
 
 
