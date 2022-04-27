@@ -1,0 +1,38 @@
+[
+    {
+        "mode": "light",
+        "backgroundColor": "white",
+        "sidebarColor": "linear-gradient(to bottom right, rgb(208, 211, 214), rgb(184, 184, 218))",
+        "headerColor": "linear-gradient(to bottom right, rgb(133, 154, 212), rgb(112, 95, 173))",
+        "textColor1": "black",
+        "textColor2": "white",
+        "hoverColor": "#90b0eb"
+    },
+    {
+        "mode": "dark",
+        "backgroundColor": "black",
+        "sidebarColor": "linear-gradient(to bottom right, rgb(107, 108, 109), rgb(18, 18, 19))",
+        "headerColor": "linear-gradient(to bottom right, rgb(102, 116, 153), rgb(64, 51, 110))",
+        "textColor1": "white",
+        "textColor2": "black",
+        "hoverColor": "#90b0eb"
+    },
+    {
+        "mode": "contrast",
+        "backgroundColor": "black",
+        "sidebarColor": "linear-gradient(to bottom right, rgb(47, 47, 48), rgb(0, 0, 5))",
+        "headerColor": "linear-gradient(to bottom right, rgb(20, 36, 80), rgb(15, 3, 61))",
+        "textColor1": "white",
+        "textColor2": "black",
+        "hoverColor": "#90b0eb"
+    },
+    {
+        "mode": "default",
+        "backgroundColor": "white",
+        "sidebarColor": "linear-gradient(to bottom right, rgb(107, 108, 109), rgb(18, 18, 19))",
+        "headerColor": "linear-gradient(to bottom right, rgb(102, 116, 153), rgb(64, 51, 110))",
+        "textColor1": "black",
+        "textColor2": "white",
+        "hoverColor": "#90b0eb"
+    }
+]

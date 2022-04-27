@@ -1,0 +1,20 @@
+[
+    {
+        "size": "small",
+        "appSize": "100%",
+        "sidebarW": "10%",
+        "headerH": "60px"
+    },
+    {
+        "size": "medium-recommended",
+        "appSize": "120%",
+        "sidebarW": "12%",
+        "headerH": "80px"
+    },
+    {
+        "size": "large",
+        "appSize": "150%",
+        "sidebarW": "15%",
+        "headerH": "80px"
+    }
+]

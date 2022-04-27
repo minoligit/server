@@ -4,6 +4,9 @@ const app = express();
 const fs = require('fs');
 const router = express.Router();
 const placesdata = require(__dirname+'/../data/placesdata.json');
+const modesdata = require(__dirname+'/../data/modesdata.json');
+const navbarlocdata = require(__dirname+'/../data/navbarlocdata.json');
+const fontsizesdata = require(__dirname+'/../data/fontsizesdata.json');
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -36,7 +39,6 @@ router.get('/mostReacted',(req,res) =>{
     res.end(JSON.stringify(mostReacted));
 });
 
-
 const lastId = placesdata.length;
 const nextId = lastId+1;
 
@@ -57,6 +59,17 @@ router.post('/addPlace',(req,res) =>{
          console.log("successfully added");
       }
    })
+});
+
+//Appearance data operations
+router.get('/selectAllModes',(req,res) =>{
+   res.end(JSON.stringify(modesdata));
+});
+router.get('/selectAllNavBarLoc',(req,res) =>{
+   res.end(JSON.stringify(navbarlocdata));
+});
+router.get('/selectAllFontSizes',(req,res) =>{
+   res.end(JSON.stringify(fontsizesdata));
 });
 
 

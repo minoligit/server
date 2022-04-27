@@ -1,0 +1,29 @@
+[
+    {
+        "location": "left",
+        "height": "100%",
+        "width": "12%",
+        "top": "0",
+        "left": "0",
+        "headerLeft": "12%",
+        "hoverColor": "#90b0eb"
+    },
+    {
+        "location": "right",
+        "height": "100%",
+        "width": "12%",
+        "top": "80px",
+        "left": "88%",
+        "headerLeft": "0",
+        "hoverColor": "#90b0eb"
+    },
+    {
+        "location": "top",
+        "height": "60px",
+        "width": "100%",
+        "top": "80px",
+        "left": "0",
+        "headerLeft": "0",
+        "hoverColor": "#90b0eb"
+    }
+]

@@ -35,12 +35,92 @@ function setValue(qry){
     }); 
 }
 
+//Settings Operations
+app.post('/verifyLogin',(req,res) => {
+    const userName = req.body.userName;
+    const password = req.body.password;
+
+    const sqlVerifyLogin ="SELECT user_id,username FROM users WHERE username = '"+userName+"' && password = '"+
+        password+"' LIMIT 1";;
+    db.query(sqlVerifyLogin, (error, result) => {
+        res.send(result);
+    });
+});
+app.post('/updateAppearance',(req,res) => {
+    const userId = req.body.userId;
+    const mode = req.body.mode;
+    const navBarLocation = req.body.navBarLocation;
+    const fontSize = req.body.fontSize;
+    var qryStr = "UPDATE userpreferences SET ";
+
+    if(mode!=null&&mode!='undefined'){
+        qryStr += ("mode='"+mode+"' ");
+    }
+    if(navBarLocation!=null&&navBarLocation!='undefined'){
+        qryStr += ("navBarLocation='"+navBarLocation+"' ");
+    }
+    if(fontSize!=null&&fontSize!='undefined'){
+        qryStr += ("fontSize='"+fontSize+"'");
+    }
+
+    qryStr += (" WHERE userId="+userId);
+    db.query(qryStr, (error, result) => {
+        console.log(error);
+    });
+});
+app.post('/getTheme',(req,res) => {
+    const userId = req.body.userId;
+
+    const sqlGetMode = "SELECT mode from userpreferences WHERE userId="+userId+"";
+    db.query(sqlGetMode, (error, result) => {
+        res.send(result);
+    });
+});
+app.post('/getAppearance',(req,res) => {
+    const userId = req.body.userId;
+
+    const sqlGetAppearance = "SELECT navBarLocation,fontSize from userpreferences WHERE userId="+userId+"";
+    db.query(sqlGetAppearance, (error, result) => {
+        res.send(result);
+    });
+});
+
 //Employee Operations
 app.post('/selectAllEmployees',(req,res) => {
     const sqlSelectAll = "SELECT * FROM employees";
     db.query(sqlSelectAll, (error, result) => {
         res.send(result);
     }); 
+});
+app.post('/getSuggestions',(req,res) => {
+    const header = req.body.header;
+    const operation = req.body.operation;
+    const input = req.body.input;
+
+    var sqlGetSuggestions = "SELECT DISTINCT "+header+" AS header FROM employees WHERE "+header+" LIKE ";
+
+    if(operation=="Start with"){
+        sqlGetSuggestions += ("'"+input+"%'");
+    }
+    else if(operation=="End with"){
+        sqlGetSuggestions += ("'%"+input+"'");
+    }
+    else{
+        sqlGetSuggestions += ("'%"+input+"%'");
+    }
+    sqlGetSuggestions += (" LIMIT 10");
+
+    db.query(sqlGetSuggestions, (error, result) => {
+        res.send(result);
+    });
+});
+app.post('/getMinMax',(req,res) => {
+    const header = req.body.header;
+
+    const sqlGetMinMax = "SELECT MIN("+header+"), MAX("+header+") FROM employees";
+    db.query(sqlGetMinMax, (error, result) => {
+        res.send(result);
+    });
 });
 app.post('/searchEmployees',(req,res) => {
     
@@ -79,9 +159,8 @@ app.post('/searchEmployees',(req,res) => {
     const sqlSearchEmployees =  "CALL searchEmployee(\""+qryStr+"\");";
     db.query(sqlSearchEmployees, (error, result) => {
         res.send(result);
-        console.log(sqlSearchEmployees);
     });
-})
+});
 app.get('/sendEmpDescription',(req,res) => {
 
     const sqlSendEmpDescription = "CALL sendEmpDescription();";
@@ -169,6 +248,14 @@ app.delete('/deleteUser',(req,res) => {
     const sqlDeleteUser = "DELETE FROM users WHERE user_id=? ";
     db.query(sqlDeleteUser, user_id,(error, result) => {
         console.log(error);
+    });
+});
+app.post('/getLoggedUser',(req,res) => {
+
+    const userId = req.body.userId;
+    const sqlLoggedUser = "SELECT * FROM users WHERE user_id ="+userId;
+    db.query(sqlLoggedUser, (error, result) => {
+        res.send(result);
     });
 });
 
